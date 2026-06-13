@@ -1,0 +1,32 @@
+name: Test customization options
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          github_username: octocat
+          output_path: /tmp/breakout-custom
+          enable_ghost_bricks: "true"
+          paddle_color: "#ff0000"
+          ball_color: "#00ff00"
+          bricks_colors: "#0000ff,#ff00ff"
+      - name: Assert output files were created with custom options
+        run: |
+          echo "Checking output directory: /tmp/breakout-custom"
+          ls /tmp/breakout-custom || true
+          if [ ! -d "/tmp/breakout-custom" ]; then
+            echo "FAIL: output directory was not created"
+            exit 1
+          fi
+          SVG_COUNT=$(find /tmp/breakout-custom -name "*.svg" | wc -l)
+          echo "SVG files found: $SVG_COUNT"
+          if [ "$SVG_COUNT" -lt 1 ]; then
+            echo "FAIL: no SVG files were generated"
+            exit 1
+          fi
+          echo "PASS"
