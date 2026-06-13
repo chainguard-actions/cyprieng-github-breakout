@@ -1,0 +1,29 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          github_username: octocat
+          output_path: /tmp/breakout-output
+      - name: Assert output files were created
+        run: |
+          echo "Checking output directory: /tmp/breakout-output"
+          if [ ! -d "/tmp/breakout-output" ]; then
+            echo "FAIL: output directory /tmp/breakout-output was not created"
+            exit 1
+          fi
+          echo "Listing output files:"
+          ls -la /tmp/breakout-output/
+          SVG_COUNT=$(find /tmp/breakout-output -name "*.svg" | wc -l)
+          echo "SVG count: $SVG_COUNT"
+          if [ "$SVG_COUNT" -lt 1 ]; then
+            echo "FAIL: expected at least one SVG file in output directory"
+            exit 1
+          fi
+          echo "PASS"
