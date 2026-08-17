@@ -1,0 +1,27 @@
+name: Test custom output path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          github_username: octocat
+          output_path: custom-output
+      - name: Assert SVG files were generated in custom output path
+        run: |
+          echo "Checking for generated SVG files in custom-output directory..."
+          if [ ! -d "custom-output" ]; then
+            echo "FAIL: custom-output directory was not created"
+            exit 1
+          fi
+          SVG_COUNT=$(find custom-output -name "*.svg" | wc -l)
+          echo "SVG files found in custom-output: $SVG_COUNT"
+          if [ "$SVG_COUNT" -lt 1 ]; then
+            echo "FAIL: No SVG files were generated in custom-output directory"
+            exit 1
+          fi
+          echo "PASS: SVG files were generated in custom-output directory"
