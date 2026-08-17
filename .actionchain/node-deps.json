@@ -1,0 +1,9 @@
+{
+  "status": "self_contained",
+  "entries": [
+    {
+      "path": "dist/cli.js",
+      "status": "self_contained"
+    }
+  ]
+}

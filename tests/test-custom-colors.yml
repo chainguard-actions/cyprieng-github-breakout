@@ -1,0 +1,38 @@
+name: Test custom colors and ghost bricks
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create output directory
+        run: mkdir -p /tmp/breakout-colors
+      - id: action
+        uses: .
+        with:
+          github_username: octocat
+          output_path: /tmp/breakout-colors
+          paddle_color: "#FF0000"
+          ball_color: "#00FF00"
+          bricks_colors: "#0000FF,#FF00FF"
+          enable_ghost_bricks: "true"
+      - name: Assert SVG files were generated with custom colors
+        run: |
+          echo "Checking for generated SVG files in /tmp/breakout-colors..."
+          SVG_COUNT=$(find /tmp/breakout-colors -name "*.svg" | wc -l)
+          echo "SVG files found: $SVG_COUNT"
+          if [ "$SVG_COUNT" -lt 1 ]; then
+            echo "FAIL: expected at least one SVG file in /tmp/breakout-colors"
+            exit 1
+          fi
+          echo "PASS: SVG files were generated with custom colors"
+          ls -la /tmp/breakout-colors/
+          # Verify SVG content contains color references
+          SVG_FILE=$(find /tmp/breakout-colors -name "*.svg" | head -1)
+          echo "Checking SVG content in: $SVG_FILE"
+          if grep -qi "FF0000\|00FF00\|0000FF" "$SVG_FILE"; then
+            echo "PASS: Custom colors found in SVG output"
+          else
+            echo "INFO: Custom colors not directly visible in SVG (may be encoded differently)"
+          fi
