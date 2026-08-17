@@ -1,0 +1,30 @@
+name: Test optional parameters
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create output directory
+        run: mkdir -p "$GITHUB_WORKSPACE/breakout-output"
+      - id: action
+        uses: .
+        with:
+          github_username: octocat
+          github_token: ${{ github.token }}
+          output_path: breakout-output
+          paddle_color: "#ff0000"
+          ball_color: "#00ff00"
+          bricks_colors: "#0000ff,#ff00ff"
+          enable_ghost_bricks: "true"
+      - name: Assert SVG files were generated in output_path
+        run: |
+          echo "Checking for generated SVG files in breakout-output..."
+          SVG_COUNT=$(find "$GITHUB_WORKSPACE/breakout-output" -name "*.svg" | wc -l)
+          echo "SVG files found in breakout-output: $SVG_COUNT"
+          if [ "$SVG_COUNT" -lt 1 ]; then
+            echo "FAIL: expected at least one SVG file in breakout-output directory"
+            exit 1
+          fi
+          echo "PASS"
