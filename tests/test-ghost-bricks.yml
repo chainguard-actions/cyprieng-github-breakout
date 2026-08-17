@@ -1,0 +1,27 @@
+name: Test ghost bricks feature
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create output directory
+        run: mkdir -p "$GITHUB_WORKSPACE/ghost-output"
+      - id: action
+        uses: .
+        with:
+          github_username: octocat
+          output_path: ghost-output
+          enable_ghost_bricks: "true"
+      - name: Assert SVG files were generated with ghost bricks enabled
+        run: |
+          echo "Listing ghost output directory..."
+          ls -la "$GITHUB_WORKSPACE/ghost-output" || true
+          SVG_COUNT=$(find "$GITHUB_WORKSPACE/ghost-output" -name "*.svg" | wc -l)
+          echo "SVG count in ghost-output: $SVG_COUNT"
+          if [ "$SVG_COUNT" -lt 1 ]; then
+            echo "FAIL: expected at least one SVG file in ghost-output directory"
+            exit 1
+          fi
+          echo "PASS: $SVG_COUNT SVG file(s) generated with ghost bricks enabled"

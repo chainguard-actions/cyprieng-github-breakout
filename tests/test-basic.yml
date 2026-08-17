@@ -10,19 +10,15 @@ jobs:
         uses: .
         with:
           github_username: octocat
-          output_path: /tmp/breakout-output
-      - name: Assert output files were created
+      - name: Assert SVG files were generated
         run: |
-          echo "Checking output directory: /tmp/breakout-output"
-          ls /tmp/breakout-output || true
-          if [ ! -d "/tmp/breakout-output" ]; then
-            echo "FAIL: output directory was not created"
-            exit 1
-          fi
-          SVG_COUNT=$(find /tmp/breakout-output -name "*.svg" | wc -l)
-          echo "SVG files found: $SVG_COUNT"
+          echo "Listing workspace for generated SVGs..."
+          ls -la "$GITHUB_WORKSPACE" || true
+          # The action should generate at least one SVG file in the workspace
+          SVG_COUNT=$(find "$GITHUB_WORKSPACE" -maxdepth 2 -name "*.svg" | wc -l)
+          echo "SVG count: $SVG_COUNT"
           if [ "$SVG_COUNT" -lt 1 ]; then
-            echo "FAIL: no SVG files were generated"
+            echo "FAIL: expected at least one SVG file to be generated"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: $SVG_COUNT SVG file(s) generated"

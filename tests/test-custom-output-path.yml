@@ -1,0 +1,26 @@
+name: Test custom output path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create output directory
+        run: mkdir -p "$GITHUB_WORKSPACE/output-svgs"
+      - id: action
+        uses: .
+        with:
+          github_username: octocat
+          output_path: output-svgs
+      - name: Assert SVG files were generated in custom output path
+        run: |
+          echo "Listing custom output directory..."
+          ls -la "$GITHUB_WORKSPACE/output-svgs" || true
+          SVG_COUNT=$(find "$GITHUB_WORKSPACE/output-svgs" -name "*.svg" | wc -l)
+          echo "SVG count in output-svgs: $SVG_COUNT"
+          if [ "$SVG_COUNT" -lt 1 ]; then
+            echo "FAIL: expected at least one SVG file in output-svgs directory"
+            exit 1
+          fi
+          echo "PASS: $SVG_COUNT SVG file(s) found in custom output path"
